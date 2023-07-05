@@ -4,6 +4,8 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 import os,json
 
+# Run the App using "uvicorn app:app --reload"
+
 app = FastAPI()
 
 origins = [
@@ -70,6 +72,16 @@ def read_root():
         print("No file")
     return ToDoList
 
+@app.delete("/{item_id}")
+async def delete_item(item_id: int):
+    for each in ToDoList:
+        if(each['id']==item_id):
+            ToDoList.remove(each)
+            with open('data.json','w') as outfile:
+                json.dump(ToDoList,outfile)
+            return ToDoList
+    return ToDoList
+    
 
 @app.post("/")
 async def create_item(item: Item):   

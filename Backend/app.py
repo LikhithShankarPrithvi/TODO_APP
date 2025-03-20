@@ -2,7 +2,7 @@ from typing import Union
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 from pydantic import BaseModel
-import os,json
+import os,json,uvicorn
 
 # Run the App using "uvicorn app:app --reload"
 
@@ -103,3 +103,5 @@ async def create_item(item: Item):
         json.dump(ToDoList,outfile)
     return ToDoList
 
+if __name__ == "__main__":
+    uvicorn.run("app:app", host="127.0.0.1", port=5050, reload=True)

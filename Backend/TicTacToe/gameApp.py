@@ -10,8 +10,15 @@ class Game:
 
     def __init__(self):
         self.board=[[" " for i in range(3)]for j in range(3)]
-        self.player1='player1'
-        self.player2='player2'
+        self.player1='Player1'
+        self.player2='Player2'
+        self.currentPlayer=self.player1
+        self.status="progress"
+
+    def clear_board(self):
+        self.board=[[" " for i in range(3)]for j in range(3)]
+        self.player1='Player1'
+        self.player2='Player2'
         self.currentPlayer=self.player1
         self.status="progress"
 
@@ -24,7 +31,7 @@ class Game:
     def update(self,player,rowIndex,colIndex):
         x=rowIndex
         y=colIndex
-        if self.board[x][y]!=" " or position>9 or position<1:
+        if self.board[x][y]!=" ":
             return False
 
 
@@ -33,7 +40,14 @@ class Game:
         elif player==self.player2:
             self.board[x][y]='O'
         return True
-
+    def check_draw(self):
+        for i in range(3):
+            for j in range(3):
+                if self.board[i][j]==" ":
+                    return False
+        if self.status=='progress':
+            return True
+        return False
     def check_win(self):
         for i in range(3):
             if self.board[i][0]==self.board[i][1]==self.board[i][2]:

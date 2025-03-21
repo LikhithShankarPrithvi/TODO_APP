@@ -6,10 +6,13 @@ import os,json,uvicorn
 
 import gameApp
 
+class Item(BaseModel):
+    col: int
+    row: int
 
 
 # Run the App using "uvicorn app:app --reload"
-
+game=gameApp.Game()
 app = FastAPI()
 
 origins = [
@@ -32,25 +35,28 @@ app.add_middleware(
 
 @app.get("/")
 def start_game():
-    game=gameApp.Game()
     # print(game.board, game.currentPlayer)
-    return game.board,game.currentPlayer,game_status
+    return game.board,game.currentPlayer,game.status
 
-# @app.delete("/{item_id}")
-# async def delete_item(item_id: int):
-#     for each in ToDoList:
-#         if(each['id']==item_id):
-#             ToDoList.remove(each)
-#             with open('data.json','w') as outfile:
-#                 json.dump(ToDoList,outfile)
-#             return ToDoList
-#     return ToDoList
+@app.delete("/")
+async def reset_board():
+    game.clear_board()
+    return game.board,game.currentPlayer,game.status
     
 
 @app.post("/")
-async def update_board(colIndex,rowIndex):
-
-    return 
+async def update_board(item: Item):
+    print(item.col,item.row)
+    if game.update(game.currentPlayer,item.col,item.row):
+        win_status=game.check_win()
+        draw_status=game.check_draw()
+        if not win_status and not draw_status:
+            game.change_player()
+        if win_status:
+            game.status='Victory'
+        if draw_status:
+            game.status='Draw'
+    return game.board,game.currentPlayer,game.status
 
 if __name__ == "__main__":
     uvicorn.run("api_config:app", host="127.0.0.1", port=5051, reload=True)

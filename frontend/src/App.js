@@ -1,7 +1,7 @@
 import React from 'react'
 import Todo from './components/Todo'
 import TicTacToe from './components/TicTacToe'
-
+import Chess from './components/chess'
 const App = props => {
 	return (
 		<>
@@ -12,6 +12,9 @@ const App = props => {
 					</div>
 					<div>
 						<TicTacToe />
+					</div>
+					<div>
+						<Chess />
 					</div>
 				</div>
 			</div>

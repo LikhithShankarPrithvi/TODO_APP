@@ -1,96 +1,164 @@
 import React, { useState } from 'react'
+import axios from 'axios'
+import {
+	getPossibleMoves,
+	makeMove,
+	getBoard,
+	newGame,
+} from '../api/chessApi.js'
 
 const Chess = () => {
 	// Initialize the board state
+
+	const baseURL = 'http://127.0.0.1:8000'
+	// const [listItem, setListItem] = useState('')
+
+	React.useEffect(() => {
+		axios.get(`${baseURL}/`).then(response => {
+			console.log(response.data)
+			setBoard(response.data[0])
+			setCurrentPlayer(response.data[1])
+			setStatus(response.data[2])
+		})
+	}, [])
+
 	const initialBoard = [
-		['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
-		['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
 		[null, null, null, null, null, null, null, null],
 		[null, null, null, null, null, null, null, null],
 		[null, null, null, null, null, null, null, null],
 		[null, null, null, null, null, null, null, null],
-		['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
-		['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'],
+		[null, null, null, null, null, null, null, null],
+		[null, null, null, null, null, null, null, null],
+		[null, null, null, null, null, null, null, null],
+		[null, null, null, null, null, null, null, null],
 	]
 
 	const [board, setBoard] = useState(initialBoard)
 	const [selectedPiece, setSelectedPiece] = useState(null)
-
+	const [possibleMoves, setPossibleMoves] = useState([])
+	const [status, setStatus] = useState('')
+	const [currentPlayer, setCurrentPlayer] = useState('')
 	// Function to get piece symbol (you can replace these with actual chess piece images later)
 	const getPieceSymbol = piece => {
+		if (!piece) return ''
+		const { type, color } = piece
 		const symbols = {
-			k: '♔',
-			q: '♕',
-			r: '♖',
-			b: '♗',
-			n: '♘',
-			p: '♙',
-			K: '♚',
-			Q: '♛',
-			R: '♜',
-			B: '♝',
-			N: '♞',
-			P: '♟',
+			white: {
+				king: '♔',
+				queen: '♕',
+				rook: '♖',
+				bishop: '♗',
+				knight: '♘',
+				pawn: '♙',
+			},
+			black: {
+				king: '♚',
+				queen: '♛',
+				rook: '♜',
+				bishop: '♝',
+				knight: '♞',
+				pawn: '♟',
+			},
 		}
-		return symbols[piece] || ''
+		return symbols[color?.toLowerCase()]?.[type?.toLowerCase()] || ''
 	}
 
-	// Handle piece selection and movement
-	const handleSquareClick = (row, col) => {
+	const handlePieceClick = async (row, col) => {
 		if (!selectedPiece) {
-			if (board[row][col]) {
-				setSelectedPiece({ row, col })
+			try {
+				const response = await getPossibleMoves([row, col])
+				// console.log(response)
+				setPossibleMoves(response.possible_moves)
+				console.log(possibleMoves)
+				setSelectedPiece([row, col])
+			} catch (error) {
+				alert('Could not get possible moves')
 			}
 		} else {
-			// Move piece (this is a simple move, without chess rules)
-			const newBoard = [...board.map(row => [...row])]
-			newBoard[row][col] = board[selectedPiece.row][selectedPiece.col]
-			newBoard[selectedPiece.row][selectedPiece.col] = null
-			setBoard(newBoard)
-			setSelectedPiece(null)
+			if (selectedPiece) {
+				console.log(possibleMoves, row, col)
+				if (
+					possibleMoves.some(
+						move => move[0] === row && move[1] === col
+					)
+				) {
+					try {
+						const response = await makeMove(selectedPiece, [
+							row,
+							col,
+						])
+						setBoard(response.board)
+						setPossibleMoves([])
+						setSelectedPiece(null)
+					} catch (error) {
+						alert('could not make move')
+					}
+				} else {
+					try {
+						const response = await getPossibleMoves([row, col])
+						// console.log(response)
+						setPossibleMoves(response.possible_moves)
+						console.log(possibleMoves)
+						setSelectedPiece([row, col])
+					} catch (error) {
+						alert('Could not get possible moves')
+					}
+				}
+			}
 		}
+	}
+
+	const handleNewGame = async () => {
+		const response = await newGame()
+		// if (response.data) {
+		setBoard(response.data[0])
+		setCurrentPlayer(response.data[1])
+		setStatus(response.data[2])
+		// }
 	}
 
 	return (
-		<div
-			className='chess-board'
-			style={{
-				display: 'inline-block',
-				border: '2px solid #333',
-			}}
-		>
+		<div className='inline-block border-2 border-gray-800'>
 			{board.map((row, rowIndex) => (
-				<div key={rowIndex} style={{ display: 'flex' }}>
+				<div key={rowIndex} className='flex'>
 					{row.map((piece, colIndex) => (
 						<div
 							key={`${rowIndex}-${colIndex}`}
-							onClick={() =>
-								handleSquareClick(rowIndex, colIndex)
-							}
-							style={{
-								width: '50px',
-								height: '50px',
-								backgroundColor:
-									(rowIndex + colIndex) % 2 === 0
-										? '#fff'
-										: '#999',
-								display: 'flex',
-								justifyContent: 'center',
-								alignItems: 'center',
-								fontSize: '30px',
-								cursor: 'pointer',
-								border:
-									selectedPiece?.row === rowIndex &&
-									selectedPiece?.col === colIndex
-										? '2px solid yellow'
-										: 'none',
-							}}
+							onClick={() => handlePieceClick(rowIndex, colIndex)}
+							className={`
+								w-14 h-14
+								flex justify-center items-center
+								text-3xl cursor-pointer
+								${(rowIndex + colIndex) % 2 === 0 ? 'bg-white' : 'bg-gray-400'}
+								${
+									selectedPiece &&
+									selectedPiece[0] === rowIndex &&
+									selectedPiece[1] === colIndex
+										? 'border-2 border-yellow-400'
+										: ''
+								}
+								${
+									possibleMoves.some(
+										move =>
+											move[0] === rowIndex &&
+											move[1] === colIndex
+									)
+										? ' border-8 border-blue-500'
+										: ''
+								}
+							`}
 						>
 							{piece && getPieceSymbol(piece)}
 						</div>
 					))}
 				</div>
 			))}
+			<button
+				onClick={handleNewGame}
+				className='px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors'
+			>
+				New Game
+			</button>
 		</div>
 	)
 }

@@ -7,12 +7,12 @@ const App = props => {
 		<>
 			<div className='min-h-screen flex justify-center bg-slate-900 '>
 				<div className='flex flex-row items-center'>
-					<div>
+					{/* <div>
 						<Todo props={props} />
 					</div>
 					<div>
 						<TicTacToe />
-					</div>
+					</div> */}
 					<div>
 						<Chess />
 					</div>

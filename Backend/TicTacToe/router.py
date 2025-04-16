@@ -2,9 +2,10 @@ from typing import Union
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 from pydantic import BaseModel
+from fastapi import APIRouter
 import os,json,uvicorn
 
-import gameApp
+from TicTacToe.gameApp import Game
 
 class Item(BaseModel):
     col: int
@@ -12,8 +13,8 @@ class Item(BaseModel):
 
 
 # Run the App using "uvicorn app:app --reload"
-game=gameApp.Game()
-app = FastAPI()
+game=Game()
+router = APIRouter()
 
 origins = [
     "http://localhost.tiangolo.com",
@@ -24,27 +25,20 @@ origins = [
 
 
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 
-@app.get("/")
+@router.get("/")
 def start_game():
     # print(game.board, game.currentPlayer)
     return game.board,game.currentPlayer,game.status
 
-@app.delete("/")
+@router.delete("/")
 async def reset_board():
     game.clear_board()
     return game.board,game.currentPlayer,game.status
     
 
-@app.post("/")
+@router.post("/")
 async def update_board(item: Item):
     print(item.col,item.row)
     if game.update(game.currentPlayer,item.col,item.row):
@@ -59,4 +53,4 @@ async def update_board(item: Item):
     return game.board,game.currentPlayer,game.status
 
 if __name__ == "__main__":
-    uvicorn.run("api_config:app", host="127.0.0.1", port=5051, reload=True)
+    uvicorn.run("api_config:router", host="127.0.0.1", port=5051, reload=True)

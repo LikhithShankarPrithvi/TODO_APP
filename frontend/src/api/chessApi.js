@@ -2,7 +2,7 @@
 
 import axios from 'axios'
 
-const baseURL = 'http://localhost:8000' // FastAPI backend
+const baseURL = 'http://localhost:8000/chess' // FastAPI backend
 
 export const getPossibleMoves = async position => {
 	try {

@@ -10,7 +10,7 @@ import {
 const Chess = () => {
 	// Initialize the board state
 
-	const baseURL = 'http://127.0.0.1:8000'
+	const baseURL = 'http://127.0.0.1:8000/chess'
 	// const [listItem, setListItem] = useState('')
 
 	React.useEffect(() => {
@@ -19,6 +19,7 @@ const Chess = () => {
 			setBoard(response.data[0])
 			setCurrentPlayer(response.data[1])
 			setStatus(response.data[2])
+			console.log(currentPlayer)
 		})
 	}, [])
 
@@ -64,15 +65,23 @@ const Chess = () => {
 	}
 
 	const handlePieceClick = async (row, col) => {
+		const piece = board[row][col]
+
 		if (!selectedPiece) {
-			try {
-				const response = await getPossibleMoves([row, col])
-				// console.log(response)
-				setPossibleMoves(response.possible_moves)
-				console.log(possibleMoves)
-				setSelectedPiece([row, col])
-			} catch (error) {
-				alert('Could not get possible moves')
+			if (
+				piece &&
+				((currentPlayer === 'Player1' && piece.color === 'White') ||
+					(currentPlayer === 'Player2' && piece.color === 'Black'))
+			) {
+				try {
+					const response = await getPossibleMoves([row, col])
+					// console.log(response)
+					setPossibleMoves(response.possible_moves)
+					console.log(possibleMoves)
+					setSelectedPiece([row, col])
+				} catch (error) {
+					alert('Could not get possible moves')
+				}
 			}
 		} else {
 			if (selectedPiece) {
@@ -90,6 +99,8 @@ const Chess = () => {
 						setBoard(response.board)
 						setPossibleMoves([])
 						setSelectedPiece(null)
+						setCurrentPlayer(response.player)
+						console.log(currentPlayer)
 					} catch (error) {
 						alert('could not make move')
 					}

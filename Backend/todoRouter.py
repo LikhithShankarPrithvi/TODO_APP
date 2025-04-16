@@ -1,12 +1,12 @@
 from typing import Union
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI
+from fastapi import FastAPI,APIRouter
 from pydantic import BaseModel
 import os,json,uvicorn
 
 # Run the App using "uvicorn app:app --reload"
 
-app = FastAPI()
+router = APIRouter()
 
 origins = [
     "http://localhost.tiangolo.com",
@@ -15,15 +15,6 @@ origins = [
     "http://localhost:3000",
 ]
 
-
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 class Item(BaseModel):
     id: int
@@ -64,7 +55,7 @@ except:
 #         print("Error: could not create file " + filename)
 
 
-@app.get("/")
+@router.get("/")
 def read_root():
     try:
         ToDoList=json.load(open('data.json'))
@@ -72,7 +63,7 @@ def read_root():
         print("No file")
     return ToDoList
 
-@app.delete("/{item_id}")
+@router.delete("/{item_id}")
 async def delete_item(item_id: int):
     for each in ToDoList:
         if(each['id']==item_id):
@@ -83,7 +74,7 @@ async def delete_item(item_id: int):
     return ToDoList
     
 
-@app.post("/")
+@router.post("/")
 async def create_item(item: Item):   
     keyID=item.id
     print(item)
@@ -104,4 +95,4 @@ async def create_item(item: Item):
     return ToDoList
 
 if __name__ == "__main__":
-    uvicorn.run("app:app", host="127.0.0.1", port=5050, reload=True)
+    uvicorn.run("todoRouter:router", host="127.0.0.1", port=5050, reload=True)

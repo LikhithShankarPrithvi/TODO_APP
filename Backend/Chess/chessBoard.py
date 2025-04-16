@@ -1,4 +1,4 @@
-from chessPieces import ChessPieceFactory
+from Chess.chessPieces import ChessPieceFactory
 
 
 class ChessBoard:
@@ -82,6 +82,8 @@ class ChessBoard:
             [self.serialize_piece(cell) for cell in row]
             for row in self.board
         ]
+
+
 
 
 # board=ChessBoard()

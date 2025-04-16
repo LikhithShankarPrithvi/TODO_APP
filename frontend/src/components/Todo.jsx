@@ -12,7 +12,7 @@ import { BsCheckCircleFill } from 'react-icons/bs'
 import { AiFillDelete } from 'react-icons/ai'
 
 const Todo = props => {
-	const baseURL = 'http://127.0.0.1:5050'
+	const baseURL = 'http://127.0.0.1:8000/todo'
 	const [toDoList, setToDoList] = useState([])
 	const [listItem, setListItem] = useState('')
 

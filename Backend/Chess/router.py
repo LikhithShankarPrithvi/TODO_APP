@@ -1,15 +1,16 @@
 from typing import Union
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
+from fastapi import APIRouter
 from pydantic import BaseModel
 import os,json,uvicorn
 
-from chessGame import Chess
+from Chess.chessGame import Chess
 
 
 # Run the App using "uvicorn app:app --reload"
 game=Chess()
-app = FastAPI()
+router = APIRouter()
 
 origins = [
     "http://localhost.tiangolo.com",
@@ -20,14 +21,6 @@ origins = [
 
 
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 
 class PositionRequest(BaseModel):
     position: tuple[int, int]
@@ -37,7 +30,7 @@ class MoveRequest(BaseModel):
     new_position: tuple[int, int]
 
 
-@app.post("/get_possible_moves")
+@router.post("/get_possible_moves")
 async def get_possible_moves(request: PositionRequest):
     """API to return possible moves for a selected chess piece."""
     position = request.position
@@ -48,35 +41,35 @@ async def get_possible_moves(request: PositionRequest):
 
     return {"position": position, "possible_moves": possible_moves}
 
-@app.post("/move_piece")
+@router.post("/move_piece")
 async def move_piece(request: MoveRequest):
     """API to move a chess piece."""
     killStatus = game.move_piece(request.old_position, request.new_position)
-
+    game.changePlayer()
     # if not success:
     #     raise HTTPException(status_code=400, detail=message)
     board=game.board.get_board_state()
-    return {"killStatus": killStatus,"board":board}
+    return {"killStatus": killStatus,"board":board,"player":game.currentPlayer}
 
 
-@app.get("/")
+@router.get("/")
 def start_game():
     # return 1
     # game.board.newBoard()
     return game.board.get_board_state(),game.currentPlayer,game.status
 
-@app.get("/new_game")
+@router.get("/new_game")
 def new_game():
     game.board.newBoard()
     return game.board.get_board_state(),game.currentPlayer,game.status
 
-# @app.delete("/")
+# @router.delete("/")
 # async def reset_board():
 #     game.clear_board()
 #     return game.board,game.currentPlayer,game.status
     
 
-# @app.post("/")
+# @router.post("/")
 # async def update_board(item: Item):
 #     print(item.col,item.row)
 #     if game.update(game.currentPlayer,item.col,item.row):
@@ -91,4 +84,4 @@ def new_game():
 #     return game.board,game.currentPlayer,game.status
 
 if __name__ == "__main__":
-    uvicorn.run("chessAppController:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run("chessAppController:router", host="127.0.0.1", port=8000, reload=True)

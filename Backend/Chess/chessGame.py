@@ -1,6 +1,6 @@
-from chessBoard import ChessBoard
-from chessStrategy import MoveStrategyFactory
-from chessPieces import *
+from Chess.chessBoard import ChessBoard
+from Chess.chessStrategy import MoveStrategyFactory
+from Chess.chessPieces import *
 
 class Chess:
     
@@ -21,6 +21,7 @@ class Chess:
         return strategy.getValidMoves(piece, position, self.board.board)
         
     def move_piece(self, old_position, new_position):
+        
         piece=self.board.get_piece(old_position)
         if not piece:
             return []
@@ -30,7 +31,14 @@ class Chess:
             print('Updating')
             return self.board.update_position(piece, old_position,new_position)
 
+    def changePlayer(self):
+        if self.currentPlayer==self.player1:
+            self.currentPlayer=self.player2
+        else:
+            self.currentPlayer=self.player1
 
+
+    
     def print_board(self):
         # Print column labels
         self.board.print_board()

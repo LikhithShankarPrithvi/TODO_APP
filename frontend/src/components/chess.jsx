@@ -10,7 +10,7 @@ import {
 const Chess = () => {
 	// Initialize the board state
 
-	const baseURL = 'http://127.0.0.1:8000/chess'
+	const baseURL = 'https://todo-app-reil.onrender.com/chess'
 	// const [listItem, setListItem] = useState('')
 
 	React.useEffect(() => {

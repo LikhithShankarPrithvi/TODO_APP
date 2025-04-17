@@ -3,7 +3,7 @@ import { useState } from 'react'
 import axios from 'axios'
 
 const TicTacToe = () => {
-	const baseURL = 'http://127.0.0.1:8000/tictactoe'
+	const baseURL = 'https://todo-app-reil.onrender.com/tictactoe'
 	const [status, setStatus] = useState('')
 	const [currentPlayer, setCurrentPlayer] = useState('')
 	const [gameBoard, setGameBoard] = useState([
